@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  mysql:
+      image: mysql:latest
+      container_name: mysql
+      environment:
+        MYSQL_ROOT_PASSWORD: rootpassword  # Senha do usuário root do MySQL
+        MYSQL_DATABASE: app_database  # Nome do banco de dados
+        MYSQL_USER: app_user  # Usuário adicional do MySQL (opcional)
+        MYSQL_PASSWORD: app_password  # Senha do usuário adicional (opcional)
+      volumes:
+        - mysql-data:/var/lib/mysql  # Persistência dos dados do banco
+      networks:
+        - app-network
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: api_node
+    restart: always
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=mysql://user:userpassword@mysql:3306/meu_banco
+    ports:
+      - "3000:3000"
+    depends_on:
+      - mysql
+    networks:
+      - app-network
+
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    ports:
+      - "80:80"  # Porta pública que o Nginx irá expor
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf  # Arquivo de configuração do Nginx
+    depends_on:
+      - api  # Garante que o Nginx só inicia após a API
+    networks:
+      - app-network
+
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  mysql-data:
+    driver: local
