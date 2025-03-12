@@ -1,0 +1,21 @@
+.card {
+  display: flex;
+
+  &__column {
+    width: 80%;
+  }
+  &__line {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  &__img {
+    width: 20%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    img {
+      width: 50%;
+    }
+  }
+}
